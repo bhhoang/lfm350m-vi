@@ -1,7 +1,11 @@
 """CPT pilot, LoRA, LFM2.5-350M-Base, Unsloth. 1 GPU, bf16. Run on Vast box."""
 import torch
 from datasets import load_dataset
-from transformers import TrainerCallback
+try:  # transformers v5 moved things; duck-type fallback still works
+    from transformers.trainer_callback import TrainerCallback
+except ImportError:
+    class TrainerCallback:
+        pass
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 

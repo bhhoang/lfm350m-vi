@@ -15,6 +15,6 @@ tail -n 5 prep_detail.log | tee prep.log
 # done. Data files written = success regardless of teardown RC.
 test -f train_vi.jsonl || exit $PREP_RC
 python -u train_pilot.py 2>&1 | tee train.log; test ${PIPESTATUS[0]} -eq 0
-python eval_gate.py lfm350m-vi-cpt-pilot 2>&1 | tee eval.log
+python eval_gate.py lfm350m-vi-cpt-pilot 2>&1 | tee eval.log; test ${PIPESTATUS[0]} -eq 0
 touch DONE
 echo ALLDONE
