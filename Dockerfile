@@ -12,7 +12,7 @@ RUN pip install -U pip && pip install \
     "transformers>=5.0.0" \
     accelerate trl datasets unsloth \
     huggingface_hub hf_transfer \
-    lm-evaluation-harness \
+    lm-eval \
     jupyterlab
 
 EXPOSE 8080
