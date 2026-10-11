@@ -3,3 +3,4 @@ __pycache__/
 train.log
 lfm350m-vi-cpt-pilot/
 results/
+.gstack/
