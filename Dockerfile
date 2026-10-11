@@ -19,8 +19,3 @@ EXPOSE 8080
 
 COPY train_pilot.py eval_gate.py prep_data.py train.ipynb /workspace/lfm350m-vi/
 WORKDIR /workspace/lfm350m-vi
-
-# ponytail: pilot corpus baked at build (~200MB, free local time, zero GPU billing).
-# Full-scale 1B-token corpus stays outside image — rebuild per data change
-# costs more than one upload.
-RUN python prep_data.py
