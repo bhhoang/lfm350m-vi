@@ -1,4 +1,5 @@
 """CPT pilot, LoRA, LFM2.5-350M-Base, Unsloth. 1 GPU, bf16. Run on Vast box."""
+import argparse
 import torch
 from datasets import load_dataset
 try:  # transformers v5 moved things; duck-type fallback still works
@@ -24,6 +25,12 @@ class EpochSeparatorCallback(TrainerCallback):
                 print(f"eval_loss: {entry['eval_loss']:.4f} at step {entry.get('step')}", flush=True)
                 break
 
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--max-steps", type=int, default=800)
+ap.add_argument("--output-dir", default="lfm350m-vi-cpt-pilot")
+cli = ap.parse_args()
+
 model, tok = FastLanguageModel.from_pretrained(
     MODEL, max_seq_length=MAX_SEQ, dtype=None, load_in_4bit=False)
 model = FastLanguageModel.get_peft_model(
@@ -37,11 +44,11 @@ val_ds = load_dataset("json", data_files="val_vi.jsonl", split="train")
 bf16 = torch.cuda.is_bf16_supported()
 trainer = SFTTrainer(model=model, processing_class=tok, train_dataset=ds, eval_dataset=val_ds, args=SFTConfig(
     dataset_text_field="text", per_device_train_batch_size=4,
-    gradient_accumulation_steps=8, max_steps=800, learning_rate=2e-4,
+    gradient_accumulation_steps=8, max_steps=cli.max_steps, learning_rate=2e-4,
     fp16=not bf16, bf16=bf16, logging_steps=10, save_steps=400,
-    output_dir="lfm350m-vi-cpt-pilot",
+    output_dir=cli.output_dir,
     disable_tqdm=False,  # keep tqdm progress bar
     eval_strategy="epoch", per_device_eval_batch_size=4,
 ), callbacks=[EpochSeparatorCallback()])
 trainer.train()
-model.save_pretrained("lfm350m-vi-cpt-pilot")
+model.save_pretrained(cli.output_dir)
