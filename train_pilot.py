@@ -35,14 +35,13 @@ model = FastLanguageModel.get_peft_model(
 ds = load_dataset("json", data_files="train_vi.jsonl", split="train")
 val_ds = load_dataset("json", data_files="val_vi.jsonl", split="train")
 bf16 = torch.cuda.is_bf16_supported()
-trainer = SFTTrainer(model=model, tokenizer=tok, train_dataset=ds, eval_dataset=val_ds, args=SFTConfig(
+trainer = SFTTrainer(model=model, processing_class=tok, train_dataset=ds, eval_dataset=val_ds, args=SFTConfig(
     dataset_text_field="text", per_device_train_batch_size=4,
     gradient_accumulation_steps=8, max_steps=800, learning_rate=2e-4,
     fp16=not bf16, bf16=bf16, logging_steps=10, save_steps=400,
     output_dir="lfm350m-vi-cpt-pilot",
     disable_tqdm=False,  # keep tqdm progress bar
     eval_strategy="epoch", per_device_eval_batch_size=4,
-))
-trainer.add_callback(EpochSeparatorCallback())
+), callbacks=[EpochSeparatorCallback()])
 trainer.train()
 model.save_pretrained("lfm350m-vi-cpt-pilot")
